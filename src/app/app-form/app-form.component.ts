@@ -1,8 +1,9 @@
 import { ValidationService } from './../validator-services/validation.service';
 import { AppFormDataService } from './app-form-dataService';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Inject } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 
 
@@ -16,12 +17,14 @@ export class AppFormComponent implements OnInit {
     private fb: FormBuilder,
     private appFormDataService: AppFormDataService,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    public dialog: MatDialog
   ) { }
   formMdl: FormGroup;
   submitted = false;
   success = false;
   viwMatrimInput = false;
+  globalMsgExption;
   matrim: any = {};
   matrimName = '';
   title = 'Mega matching';
@@ -32,13 +35,23 @@ export class AppFormComponent implements OnInit {
 
   }
 
+  openDialog(nessage): void {
+    const dialogRef = this.dialog.open(DialogOverviewExampleDialog, {
+      width: '250px',
+      data: { message: nessage }
+    });
 
+    dialogRef.afterClosed().subscribe(result => {
+      // console.log('The dialog was closed');
+      // this.animal = result;
+    });
+  }
   initForm() {
     this.formMdl = this.fb.group({
       id: [],
       person: [], //מס' מתרים
       full_name: [''],
-      email: ['', [Validators.email]],
+      email: ['', [ValidationService.emailValidator]],
       address: [''],
       city_name: [''],
       state: [''], //מדינה
@@ -52,13 +65,17 @@ export class AppFormComponent implements OnInit {
     })
   }
 
-  errorMessage(controlName: string) {
-   let ctrl = this.formMdl.controls['controlName'];
-      if (ctrl.touched) {
-        return ValidationService.getValidatorErrorMessage(controlName, ctrl.errors[controlName]);
+  errorMessage(e: FormControl) {
+    if (e.errors) {
+      for (let propertyName in e.errors) {
+        if (e.errors.hasOwnProperty(propertyName) && e.touched) {
+          return ValidationService.getValidatorErrorMessage(propertyName, e.errors[propertyName]);
+        } else {
+          return null;
+        }
       }
-
-    return null;
+      return null;
+    }
   }
 
 
@@ -98,20 +115,21 @@ export class AppFormComponent implements OnInit {
   }
 
   onSubmit() {
+    this.error = {};
+    this.globalMsgExption = '';
 
-
-
-    // if (this.formMdl.invalid) {
-    //   return;
-    // }
+    if (this.formMdl.invalid) {
+      return;
+    }
     var frmVal = this.formMdl.value;
     var formToPost =
     {
+      "id": frmVal.id != null && frmVal.id > 0 ? frmVal.id : "",
       "person": frmVal.person,
       "full_name": frmVal.full_name,
       "credit_number": frmVal.credit_number,
       "credit_exp": frmVal.credit_exp,
-      "amount": +frmVal.amount,
+      "amount": frmVal.amount,
       "email": frmVal.email,
       "payments": frmVal.payments,
       "currency_id": frmVal.currency_id,
@@ -122,13 +140,40 @@ export class AppFormComponent implements OnInit {
     }
     this.appFormDataService.postForm(formToPost)
       .subscribe(x => {
-        console.log(x);
+        this.openDialog(x);
+        //console.log(x);
       }, error => {
-        this.error = error.error;
+        if (error.status < 500 && error.error) {
+          this.error = error.error;
+          let props = Object.keys(error.error);
+          props.forEach(p => {
+            this.formMdl.controls[p].setErrors(error.error[p]);
+          });
+        } else {
+          this.error = error;
+          this.globalMsgExption = `[${error.status}] ${error.message}`;
+        }
+        //this.formMdl.controls
         // console.log(error.error);
 
       });
-    this.success = true;
+    //this.success = true;
+  }
+
+}
+
+@Component({
+  selector: 'dialog-overview-example-dialog',
+  template: '<h1>{{data}}</h1>',
+})
+export class DialogOverviewExampleDialog {
+
+  constructor(
+    public dialogRef: MatDialogRef<DialogOverviewExampleDialog>,
+    @Inject(MAT_DIALOG_DATA) public data: any) { }
+
+  onNoClick(): void {
+    this.dialogRef.close();
   }
 
 }

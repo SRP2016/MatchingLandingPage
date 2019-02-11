@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 
 import {  FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule, MatToolbarModule,MatIconModule, MatRadioModule,MatCheckboxModule, MatCardModule, MatSelectModule, MatOptionModule,MatFormFieldModule,MatInputModule} from '@angular/material';
+import { MatButtonModule, MatToolbarModule,MatIconModule, MatRadioModule,MatCheckboxModule, MatCardModule, MatSelectModule, MatOptionModule,MatFormFieldModule,MatInputModule, MatDialogModule} from '@angular/material';
 import { HttpClientModule } from '@angular/common/http';
 import { CreditCardDirectivesModule } from 'angular-cc-library';
 
@@ -34,9 +34,8 @@ import { CreditCardDirectivesModule } from 'angular-cc-library';
     MatToolbarModule,
     HttpClientModule,
     FlexLayoutModule,
-    CreditCardDirectivesModule
-    
-    
+    CreditCardDirectivesModule,
+    MatDialogModule
   ],
   declarations: [
     AppFormComponent,
