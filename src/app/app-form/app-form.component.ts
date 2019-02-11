@@ -20,6 +20,11 @@ export class AppFormComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     public dialog: MatDialog
   ) { }
+  public mask = {
+    guide: true,
+    showMask : true,
+    mask: [/\d/, /\d/, '/', /\d/, /\d/]
+  };
   formMdl: FormGroup;
   submitted = false;
   success = false;
@@ -29,6 +34,8 @@ export class AppFormComponent implements OnInit {
   matrimName = '';
   title = 'Mega matching';
   error = {};
+  currencies;
+  paymentsValues = [1,2,3,4,5,6,7,8,9,10,11,12];
   personFocusOut(e) {
     let personId = e.target.value;
     this.getPersonName(personId);
@@ -80,7 +87,24 @@ export class AppFormComponent implements OnInit {
 
 
   loadData() {
+   
+    // this.appFormDataService.getPermission()
+    // .subscribe((x: any) => {
+    //   //this.currencies = x;
+    // }, // success path
+    //   error => {          
+    //    // console.log("שגיאה בטעינת מטבעות", error);
+    //   }
+    // );
 
+    this.appFormDataService.getCurrencies()
+      .subscribe((x: any) => {
+        this.currencies = x;
+      },
+        error => {          
+          console.log("שגיאה בטעינת מטבעות", error);
+        }
+      );
   }
   ngOnInit() {
     this.initForm();
@@ -108,8 +132,7 @@ export class AppFormComponent implements OnInit {
       }, // success path
         error => {
           this.viwMatrimInput = true;
-          console.log("שגיאה בחיפוש");
-          console.log(error.message);
+          console.log("מתרים לא נמצא", error.message);
         }
       );
   }
@@ -124,7 +147,7 @@ export class AppFormComponent implements OnInit {
     var frmVal = this.formMdl.value;
     var formToPost =
     {
-      "id": frmVal.id != null && frmVal.id > 0 ? frmVal.id : "",
+      "id": frmVal.id,
       "person": frmVal.person,
       "full_name": frmVal.full_name,
       "credit_number": frmVal.credit_number,
@@ -138,6 +161,11 @@ export class AppFormComponent implements OnInit {
       "state": frmVal.state,
       "phone": frmVal.phone
     }
+    if(formToPost.id == null)
+    {
+      delete formToPost.id;  
+    }
+   
     this.appFormDataService.postForm(formToPost)
       .subscribe(x => {
         this.openDialog(x);
@@ -151,6 +179,11 @@ export class AppFormComponent implements OnInit {
           });
         } else {
           this.error = error;
+          if(error.message && error.message.toString().length > 30)
+          {
+            error.message = error.message.substr(0,30);
+          }
+          
           this.globalMsgExption = `[${error.status}] ${error.message}`;
         }
         //this.formMdl.controls

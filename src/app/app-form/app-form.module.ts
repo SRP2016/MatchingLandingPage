@@ -15,6 +15,8 @@ import { MatButtonModule, MatToolbarModule,MatIconModule, MatRadioModule,MatChec
 import { HttpClientModule } from '@angular/common/http';
 import { CreditCardDirectivesModule } from 'angular-cc-library';
 
+import { TextMaskModule } from 'angular2-text-mask';
+
 @NgModule({ 
   imports: [
     BrowserModule,
@@ -35,7 +37,8 @@ import { CreditCardDirectivesModule } from 'angular-cc-library';
     HttpClientModule,
     FlexLayoutModule,
     CreditCardDirectivesModule,
-    MatDialogModule
+    MatDialogModule,
+    TextMaskModule
   ],
   declarations: [
     AppFormComponent,
