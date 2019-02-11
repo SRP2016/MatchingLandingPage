@@ -6,9 +6,19 @@ import { HttpClient } from '@angular/common/http';  // Import it up here
 })
 export class AppFormDataService {
 
+  url = 'http://212.71.250.78:8000';
   constructor(private http: HttpClient) { }
+  getCurrencies() {
+    return ['', '', '', '', ''];
+  }
+  getcurrency() {
+    //return this.http.get('http://212.71.250.78:8000/getcurrency') 
+  }
+  postForm(formModel) {
+    return this.http.post('http://212.71.250.78:8000/donate/',formModel);
+  }
 
-//   getUsers() {
-//     return this.http.get('https://reqres.in/api/users')
-//   }
+  getName(sub: string): any {
+    return this.http.get(`${this.url}/getname/${sub}`);
+  }
 }
