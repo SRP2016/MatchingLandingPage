@@ -94,7 +94,7 @@
                             *ngIf="formMdl.controls.amount && formMdl.controls.amount.value > 0 && formMdl.controls.currency_id && formMdl.controls.currency_id.value > 0">
                             &nbsp;&nbsp;
                             {{(formMdl.controls.amount.value * 2) | number}}
-                            {{currencies[formMdl.controls.currency_id.value].icon}}
+                            {{currencies[formMdl.controls.currency_id.value]?.icon}}
                         </span>
                     </div>
                     <div fxLayout="row" fxLayoutAlign="start center">
@@ -121,8 +121,8 @@
                     </div>
                     <div fxLayout="row" fxLayoutAlign="start center">
                         <mat-form-field appearance="outline" fxFlex="100" class="pr-4">
-                            <input matInput [textMask]="mask"  formControlName="credit_exp" placeholder="תוקף...*" id="cc-exp-date"
-                                type="tel" autocomplete="cc-exp" ccExp>
+                            <input matInput  [textMask]="{mask: masks.cardExpiry}" formControlName="credit_exp" type="tel" placeholder="תוקף (MM/YY) ...*"/>
+                              <!-- <input matInput type="text" class="masked" pattern="(1[0-2]|0[1-9])\/(1[5-9]|2\d)" formControlName="credit_exp" placeholder="תוקף...*" > -->
                             <mat-icon matSuffix class="secondary-text">date_range</mat-icon>
                             <mat-error *ngIf="error">{{error.credit_exp}}</mat-error>
                         </mat-form-field>
@@ -131,7 +131,7 @@
 
                 </div>
             </mat-card-content>
-            <h2 *ngIf="globalMsgExption">{{globalMsgExption}}</h2>
+            <h2 *ngIf="globalMsg">{{globalMsg}}</h2>
             <mat-card-actions>
 
                 <button mat-raised-button color="accent">שלח</button>

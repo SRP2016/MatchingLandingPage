@@ -6,18 +6,17 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppFoemRoutingModule as AppFormRoutingModule } from './app-form-routing.module';
-import { AppFormComponent } from './app-form.component';
+import { AppFormComponent, DialogOverviewExampleDialog } from './app-form.component';
 import { CommonModule } from '@angular/common';
 
-import {  FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule, MatToolbarModule,MatIconModule, MatRadioModule,MatCheckboxModule, MatCardModule, MatSelectModule, MatOptionModule,MatFormFieldModule,MatInputModule, MatDialogModule} from '@angular/material';
+import { MatButtonModule, MatToolbarModule, MatIconModule, MatRadioModule, MatCheckboxModule, MatCardModule, MatSelectModule, MatOptionModule, MatFormFieldModule, MatInputModule, MatDialogModule } from '@angular/material';
 import { HttpClientModule } from '@angular/common/http';
 import { CreditCardDirectivesModule } from 'angular-cc-library';
 
 import { TextMaskModule } from 'angular2-text-mask';
-
-@NgModule({ 
+@NgModule({
   imports: [
     BrowserModule,
     CommonModule,
@@ -42,10 +41,12 @@ import { TextMaskModule } from 'angular2-text-mask';
   ],
   declarations: [
     AppFormComponent,
-  ControlMessagesComponent
+    ControlMessagesComponent,
+    DialogOverviewExampleDialog
   ],
-  exports:[AppFormComponent],
+  exports: [AppFormComponent],
   providers: [ValidationService],
-  bootstrap: []
+  bootstrap: [],
+  entryComponents: [DialogOverviewExampleDialog]
 })
 export class AppFormModule { }

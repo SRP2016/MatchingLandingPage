@@ -20,43 +20,40 @@ export class AppFormComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     public dialog: MatDialog
   ) { }
-  public mask = {
-    guide: true,
-    showMask : true,
-    mask: [/\d/, /\d/, '/', /\d/, /\d/]
-  };
+
+  masks;
   formMdl: FormGroup;
   submitted = false;
   success = false;
   viwMatrimInput = false;
-  globalMsgExption;
+  globalMsg;
   matrim: any = {};
   matrimName = '';
   title = 'Mega matching';
   error = {};
   currencies;
-  paymentsValues = [1,2,3,4,5,6,7,8,9,10,11,12];
+  paymentsValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
   personFocusOut(e) {
     let personId = e.target.value;
     this.getPersonName(personId);
-
   }
 
-  openDialog(nessage): void {
+  openDialog(data): void {
     const dialogRef = this.dialog.open(DialogOverviewExampleDialog, {
-      width: '250px',
-      data: { message: nessage }
+      // width: '250px',
+      data: data
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      // console.log('The dialog was closed');
-      // this.animal = result;
+      //this.initForm();
+      this.ngOnInit();
     });
   }
-  initForm() {
+  public initForm() {
     this.formMdl = this.fb.group({
       id: [],
-      person: [], //מס' מתרים
+      person: [null], //מס' מתרים
       full_name: [''],
       email: ['', [ValidationService.emailValidator]],
       address: [''],
@@ -87,28 +84,25 @@ export class AppFormComponent implements OnInit {
 
 
   loadData() {
-   
-    // this.appFormDataService.getPermission()
-    // .subscribe((x: any) => {
-    //   //this.currencies = x;
-    // }, // success path
-    //   error => {          
-    //    // console.log("שגיאה בטעינת מטבעות", error);
-    //   }
-    // );
-
+    this.masks = {
+      //phoneNumber: ['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/],
+      //cardNumber: [/\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/],
+      cardExpiry: [/[0-1]/, /\d/, '/', /[1-2]/, /\d/],
+      // orderCode: [/[a-zA-z]/, ':', /\d/, /\d/, /\d/, /\d/]
+    };
     this.appFormDataService.getCurrencies()
       .subscribe((x: any) => {
         this.currencies = x;
       },
-        error => {          
+        error => {
           console.log("שגיאה בטעינת מטבעות", error);
         }
       );
   }
   ngOnInit() {
     this.initForm();
-
+    this.viwMatrimInput = false; //למקרה של איפוס הטופס
+    this.error = {};
     let url = "http://0.100100.bb/"
     // let lctn = document.location.toString();
     //  let sub = lctn.split('//')[1].split('.')[0];
@@ -139,7 +133,7 @@ export class AppFormComponent implements OnInit {
 
   onSubmit() {
     this.error = {};
-    this.globalMsgExption = '';
+    this.globalMsg = '';
 
     if (this.formMdl.invalid) {
       return;
@@ -161,14 +155,18 @@ export class AppFormComponent implements OnInit {
       "state": frmVal.state,
       "phone": frmVal.phone
     }
-    if(formToPost.id == null)
-    {
-      delete formToPost.id;  
+    if (formToPost.id == null) {
+      delete formToPost.id;
     }
-   
+
     this.appFormDataService.postForm(formToPost)
-      .subscribe(x => {
-        this.openDialog(x);
+      .subscribe((x: any) => {
+        if (x.status == 0) {
+          this.openDialog(x);
+        } else {
+          this.formMdl.controls['id'].setValue(x.id);
+          this.setGlobalMsg(x);
+        }
         //console.log(x);
       }, error => {
         if (error.status < 500 && error.error) {
@@ -179,31 +177,35 @@ export class AppFormComponent implements OnInit {
           });
         } else {
           this.error = error;
-          if(error.message && error.message.toString().length > 30)
-          {
-            error.message = error.message.substr(0,30);
+          if (error.message && error.message.toString().length > 30) {
+            error.message = error.message.substr(0, 30);
           }
-          
-          this.globalMsgExption = `[${error.status}] ${error.message}`;
+          this.setGlobalMsg(error);
         }
-        //this.formMdl.controls
-        // console.log(error.error);
-
       });
     //this.success = true;
   }
 
+
+  private setGlobalMsg(x: any) {
+    this.globalMsg = `[${x.status}] ${x.message}`;
+  }
 }
 
 @Component({
   selector: 'dialog-overview-example-dialog',
-  template: '<h1>{{data}}</h1>',
+  template: '<h2 *ngIf="data">{{data.msg}}</h2><br><button (click)="onNoClick()"></button>',
 })
-export class DialogOverviewExampleDialog {
+export class DialogOverviewExampleDialog implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<DialogOverviewExampleDialog>,
     @Inject(MAT_DIALOG_DATA) public data: any) { }
+
+  ngOnInit() {
+
+    console.log(this.data);
+  }
 
   onNoClick(): void {
     this.dialogRef.close();
